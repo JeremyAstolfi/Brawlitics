@@ -18,7 +18,7 @@ public class PlayerPhysicsScript : MonoBehaviour {
     protected e_PlayerAction pA_playerAction;
 
     // Use this for initialization
-    void Start ()
+    void Awake ()
     {
         pA_playerAction = e_PlayerAction.Standing;
         direction = 0.0f;
@@ -50,7 +50,6 @@ public class PlayerPhysicsScript : MonoBehaviour {
     }
 
     //Accessors
-    #region
     public float GetGravity
     {
         get
@@ -82,15 +81,5 @@ public class PlayerPhysicsScript : MonoBehaviour {
             pA_playerAction = value;
         }
     }
-    #endregion
-
-    void OnCollisionEnter(Collision c_otherCollision)
-    {
-        Debug.Log("Boom");
-        if(c_otherCollision.gameObject.tag == "Ground")
-        {
-            Debug.Log("Ground");
-            pA_playerAction = e_PlayerAction.Standing;
-        }
-    }
+   
 }

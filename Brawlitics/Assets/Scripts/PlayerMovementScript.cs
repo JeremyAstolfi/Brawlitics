@@ -25,9 +25,9 @@ public class PlayerMovementScript : MonoBehaviour {
     {
         v2_playerVelocity = Vector2.zero;
 
-        f_gravity = GetComponent<PlayerPhysicsScript>().GetGravity;
-
         script_playerPhysics = GetComponent<PlayerPhysicsScript>();
+
+        f_gravity = script_playerPhysics.GetGravity;
 
         InitializeNullVariables();
 	}
