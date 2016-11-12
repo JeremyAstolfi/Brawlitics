@@ -29,14 +29,16 @@ public class PlayerMovementScript : MonoBehaviour {
     {
         UserInput();
 
-        transform.position = Vector2.Lerp(transform.position, 
-            new Vector2(script_playerPhysics.GetPlayerVelocity.x, transform.position.y + script_playerPhysics.GetPlayerVelocity.y),
+        transform.position = 
+            Vector2.Lerp(transform.position, 
+                new Vector2(transform.position.x + script_playerPhysics.GetPlayerVelocity.x,
+                transform.position.y + script_playerPhysics.GetPlayerVelocity.y),
             f_lerpTime);
 	}
 
     private void UserInput()
     {
-        script_playerPhysics.AddPlayerVelocityX = Input.GetAxis("Horizontal") * f_playerSpeed * Time.deltaTime;
+        script_playerPhysics.SetPlayerVelocityX = Input.GetAxis("Horizontal") * f_playerSpeed * Time.deltaTime;
 
         if(Input.GetKeyDown(KeyCode.Space) && !script_playerPhysics.CheckPlayerInAir())
         {
