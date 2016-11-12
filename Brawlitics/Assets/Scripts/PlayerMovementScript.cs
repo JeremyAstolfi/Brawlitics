@@ -10,24 +10,16 @@ public class PlayerMovementScript : MonoBehaviour {
     private float f_jumpHeight;
 
     [SerializeField]
-    private float f_gravity;
-
-    [SerializeField]
     private float f_lerpTime;
 
-    [SerializeField]
-    private Vector2 v2_playerVelocity;
 
     private PlayerPhysicsScript script_playerPhysics;
 
 	// Use this for initialization
 	void Start ()
     {
-        v2_playerVelocity = Vector2.zero;
 
         script_playerPhysics = GetComponent<PlayerPhysicsScript>();
-
-        f_gravity = script_playerPhysics.GetGravity;
 
         InitializeNullVariables();
 	}
@@ -37,24 +29,22 @@ public class PlayerMovementScript : MonoBehaviour {
     {
         UserInput();
 
-        transform.position = Vector2.Lerp(transform.position, v2_playerVelocity, f_lerpTime);
+        transform.position = Vector2.Lerp(transform.position, 
+            new Vector2(script_playerPhysics.GetPlayerVelocity.x, transform.position.y + script_playerPhysics.GetPlayerVelocity.y),
+            f_lerpTime);
 	}
 
     private void UserInput()
     {
-        v2_playerVelocity.x += Input.GetAxis("Horizontal") * f_playerSpeed * Time.deltaTime;
+        script_playerPhysics.AddPlayerVelocityX = Input.GetAxis("Horizontal") * f_playerSpeed * Time.deltaTime;
 
-        if(Input.GetKeyDown(KeyCode.Space) && !script_playerPhysics.CheckPlayerJumping())
+        if(Input.GetKeyDown(KeyCode.Space) && !script_playerPhysics.CheckPlayerInAir())
         {
             script_playerPhysics.SetActionToJumping();
-            v2_playerVelocity.y += f_jumpHeight;
+            script_playerPhysics.AddPlayerVelocityY = f_jumpHeight;
         }
     }
-
-    public void ApplyGravity()
-    {
-        v2_playerVelocity.y -= f_gravity * Time.deltaTime;
-    }
+    
 
     private void InitializeNullVariables()
     {
@@ -62,4 +52,5 @@ public class PlayerMovementScript : MonoBehaviour {
         if (f_jumpHeight <= 0.0f) { f_jumpHeight = 5.0f; }
         if (f_lerpTime <= 0.0f) { f_lerpTime = 0.5f; }
     }
+
 }
