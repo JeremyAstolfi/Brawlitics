@@ -3,6 +3,8 @@ using System.Collections;
 
 public class PlayerPhysicsScript : MonoBehaviour {
 
+    private PlayerActionScript script_playerAction;
+
     [SerializeField]
     private Vector2 v2_playerVelocity;
     [SerializeField]
@@ -13,7 +15,10 @@ public class PlayerPhysicsScript : MonoBehaviour {
     [SerializeField]
     protected float f_gravity;
 
-    private int i_layerMask;
+    private bool b_isFacingRight; 
+
+    public LayerMask lM_mask;
+    public LayerMask lM_mask2;
 
     private Rect r_box;
 
@@ -32,9 +37,6 @@ public class PlayerPhysicsScript : MonoBehaviour {
         Falling,
         Ducking
     }
-    
-
-    public float direction; // 0.0f = left, 1.0f = right
 
     [SerializeField]
     protected e_PlayerAction pA_playerAction;
@@ -42,16 +44,16 @@ public class PlayerPhysicsScript : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
+        script_playerAction = GetComponent<PlayerActionScript>();
         bC_collider = this.GetComponent<BoxCollider>();
         pA_playerAction = e_PlayerAction.Falling;
-        direction = 0.0f;
+        b_isFacingRight = true;
         InitializeNullVariables();
 	}
 
     void Start()
     {
         v2_playerVelocity = Vector2.zero;
-        i_layerMask = LayerMask.NameToLayer("normalCollision");
     }
 
     void FixedUpdate()
@@ -67,6 +69,8 @@ public class PlayerPhysicsScript : MonoBehaviour {
 	void Update()
     {
         ApplyGravity();
+        if(v2_playerVelocity.x > 0.0f) { b_isFacingRight = true; }
+        else if(v2_playerVelocity.x < 0.0f) { b_isFacingRight = false; }
     }
 
     public bool CheckPlayerInAir()
@@ -102,7 +106,7 @@ public class PlayerPhysicsScript : MonoBehaviour {
 
         float distance = r_box.height / 2 + (pA_playerAction == e_PlayerAction.Standing ? i_margin : Mathf.Abs(v2_playerVelocity.y * Time.deltaTime));
 
-        bool verticalConnected = CheckCollision(i_verticalRays, startPoint, endPoint, verticalDirection, distance, false);
+        bool verticalConnected = CheckCollision(i_verticalRays, startPoint, endPoint, verticalDirection, distance, false, lM_mask);
 
         if (verticalConnected)
         {
@@ -115,6 +119,14 @@ public class PlayerPhysicsScript : MonoBehaviour {
         {
             pA_playerAction = e_PlayerAction.Falling;
         }
+
+        bool weaponConnected = CheckCollision(i_verticalRays, startPoint, endPoint, verticalDirection, distance, false, lM_mask2);
+
+        if (weaponConnected)
+        {
+            script_playerAction.SetWeaponNearby = true;
+            script_playerAction.SetWeaponToEquip = rH_hitInfo.collider.gameObject;
+        }
     }
 
     private void CheckHorizontalCollision()
@@ -126,7 +138,7 @@ public class PlayerPhysicsScript : MonoBehaviour {
 
         float distance = r_box.width / 2 + Mathf.Abs(v2_playerVelocity.x * Time.deltaTime);
 
-        bool horizontalConnected = CheckCollision(i_horizontalRays, startPoint, endPoint, horizontalDirection, distance, false);
+        bool horizontalConnected = CheckCollision(i_horizontalRays, startPoint, endPoint, horizontalDirection, distance, false, lM_mask);
 
         if (horizontalConnected)
         {
@@ -135,7 +147,7 @@ public class PlayerPhysicsScript : MonoBehaviour {
         }
     }
 
-    private bool CheckCollision(float rays, Vector2 startPoint, Vector2 endPoint, Vector2 direction, float distance, bool connected)
+    private bool CheckCollision(float rays, Vector2 startPoint, Vector2 endPoint, Vector2 direction, float distance, bool connected, LayerMask mask)
     {
         RaycastHit hitInfo;
 
@@ -145,7 +157,7 @@ public class PlayerPhysicsScript : MonoBehaviour {
             Vector2 origin = Vector2.Lerp(startPoint, endPoint, lerpAmount);
             Ray ray = new Ray(origin, direction);
             Debug.DrawRay(origin, direction);
-            connected = Physics.Raycast(ray, out hitInfo, distance, i_layerMask);
+            connected = Physics.Raycast(ray, out hitInfo, distance, mask);
 
             if (connected)
             {
